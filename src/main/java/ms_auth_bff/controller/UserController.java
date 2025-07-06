@@ -2,27 +2,34 @@ package ms_auth_bff.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import ms_auth_bff.model.dto.CourseDTO;
 import ms_auth_bff.service.UserService;
-
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/api/users")
-
+@Tag(name = "Usuarios y Cursos - BFF", description = "Endpoints BFF que combinan información de usuarios y cursos")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
+    @Operation(summary = "Obtener información de un curso", 
+               description = "Este endpoint del BFF obtiene los detalles de un curso específico.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Curso encontrado y devuelto"),
+        @ApiResponse(responseCode = "404", description = "El curso no fue encontrado")
+    })
     @GetMapping("/courses/{id}")
-    public ResponseEntity<CourseDTO> getCourseInfo(@PathVariable Long id) {
+    public ResponseEntity<CourseDTO> getCourseInfo(
+            @Parameter(description = "ID del curso que se desea consultar", required = true, example = "1") 
+            @PathVariable Long id) {
         CourseDTO course = userService.getCourseDetails(id);
         if (course != null) {
             return ResponseEntity.ok(course);
@@ -31,23 +38,3 @@ public class UserController {
         }
     }
 }
-
-    /* @GetMapping("/users/{userId}/courses/{courseId}")
-    public ResponseEntity<?> getCourseInfoForUser(@PathVariable Long userId, @PathVariable Long courseId) {
-        try {
-            CourseDTO courseDTO = userService.getCourseIfAuthorized(userId, courseId);
-            return ResponseEntity.ok(courseDTO);
-        } catch (RuntimeException e) {
-          return ResponseEntity.status(403).body(e.getMessage());
-        }
-   }
-
-public class UserController {
-  @Autowired
-    UserService userService;
-
-   @GetMapping("/users")
-    public List<UserDTO> selectAllUser(){
-      return userService.selectAllUser();
-  }
-}*/
